@@ -2,6 +2,8 @@
 
 namespace Pondra\PhpApiStarterKit\Controllers;
 
+use Pondra\PhpApiStarterKit\Config\Database;
+use Pondra\PhpApiStarterKit\Repositories\UserRepository;
 use Pondra\PhpApiStarterKit\Requests\RegisterRequest;
 use Pondra\PhpApiStarterKit\Services\UserService;
 
@@ -11,7 +13,9 @@ class AuthController
 
     public function __construct()
     {
-        $this->userService = new UserService();
+        $connection = Database::getConnection();
+        $userRepository = new UserRepository($connection);
+        $this->userService = new UserService($userRepository);
     }
 
     public function register()

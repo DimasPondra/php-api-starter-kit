@@ -2,41 +2,59 @@
 
 namespace Pondra\PhpApiStarterKit\Services;
 
+use Pondra\PhpApiStarterKit\Config\Database;
+use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
+use Pondra\PhpApiStarterKit\Models\User;
+use Pondra\PhpApiStarterKit\Repositories\UserRepository;
 use Pondra\PhpApiStarterKit\Requests\RegisterRequest;
+use Pondra\PhpApiStarterKit\Validations\RegisterValidation;
+use Ramsey\Uuid\Uuid;
 
 class UserService
 {
-    public function register(RegisterRequest $request)
+    private UserRepository $userRepository;
+
+    public function __construct(UserRepository $userRepository)
     {
-        $this->validateRegistrationRequest($request);
+        $this->userRepository = $userRepository;
+        RegisterValidation::setUserRepository($this->userRepository);
     }
 
-    private function validateRegistrationRequest(RegisterRequest $request)
+    public function register(RegisterRequest $request)
     {
-        $errors = [];
+        RegisterValidation::validation($request);
 
-        if ($request->name == null || trim($request->name) == null) {
-            $errors['name'][] = 'name is required.';
-        }
+        try {
+            Database::beginTransaction();
 
-        if ($request->email == null || trim($request->email) == null) {
-            $errors['email'][] = 'email is required.';
-        }
+            date_default_timezone_set("Asia/Jakarta");
 
-        if ($request->password == null || trim($request->password) == null) {
-            $errors['password'][] = 'password is required.';
-        }
+            $user = new User();
+            $user->id = Uuid::uuid4();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->password = password_hash($request->password, PASSWORD_BCRYPT);
+            $user->role_id = 'ac176755-288b-11f0-b47e-34415d957996';
+            $user->created_at = date('Y-m-d H:i:s');
+            $user->updated_at = date('Y-m-d H:i:s');
 
-        if (!empty($errors)) {
-            header("HTTP/1.1 422 Unprocessable Entity");
-            header('Content-Type: application/json');
+            $this->userRepository->save($user);
+
+            Database::commitTransaction();
             
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'validation failed.',
-                'errors' => $errors
+            $response = ResponseHelper::success('Register new account successfully.', [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email
             ]);
-            exit();
+
+            return $response;
+        } catch (\Throwable $th) {
+            Database::rollbackTransaction();
+
+            $response = ResponseHelper::error('Something went wrong.', $th->getMessage());
+
+            return $response;
         }
     }
 }
