@@ -4,6 +4,7 @@ namespace Pondra\PhpApiStarterKit\Services;
 
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
+use Pondra\PhpApiStarterKit\Helpers\StringHelper;
 use Pondra\PhpApiStarterKit\Models\Role;
 use Pondra\PhpApiStarterKit\Repositories\RoleRepository;
 use Pondra\PhpApiStarterKit\Requests\RoleStoreRequest;
@@ -17,9 +18,10 @@ class RoleService
     public function __construct(RoleRepository $roleRepository)
     {
         $this->roleRepository = $roleRepository;
+        RoleStoreValidation::setRoleRepository($roleRepository);
     }
 
-    public function create(RoleStoreRequest $request)
+    public function createRole(RoleStoreRequest $request)
     {
         RoleStoreValidation::validation($request);
 
@@ -31,7 +33,7 @@ class RoleService
             $role = new Role();
             $role->id = Uuid::uuid4();
             $role->name = $request->name;
-            $role->slug = $request->name;
+            $role->slug = StringHelper::slug($request->name);
             $role->createdAt = date('Y-m-d H:i:s');
             $role->updatedAt = date('Y-m-d H:i:s');
 
@@ -39,19 +41,18 @@ class RoleService
 
             Database::commitTransaction();
 
-            $response = ResponseHelper::success('Role successfully created.', [
-                'id' => $role->id,
-                'name' => $role->name,
-                'slug' => $role->slug
-            ]);
-
-            return $response;
+            return [
+                'message' => 'Role successfully created.',
+                'data' => [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                    'slug' => $role->slug
+                ]
+            ];
         } catch (\Throwable $th) {
             Database::rollbackTransaction();
 
-            $response = ResponseHelper::error('Something went wrong.', $th->getMessage());
-
-            return $response;
+            throw $th;
         }
     }
 }

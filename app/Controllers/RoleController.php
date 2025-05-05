@@ -2,8 +2,8 @@
 
 namespace Pondra\PhpApiStarterKit\Controllers;
 
-use Pondra\PhpApiStarterKit\Config\Database;
-use Pondra\PhpApiStarterKit\Repositories\RoleRepository;
+use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
+use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
 use Pondra\PhpApiStarterKit\Requests\RoleStoreRequest;
 use Pondra\PhpApiStarterKit\Services\RoleService;
 
@@ -11,11 +11,9 @@ class RoleController
 {
     private RoleService $roleService;
 
-    public function __construct()
+    public function __construct(RoleService $roleService)
     {
-        $connection = Database::getConnection();
-        $roleRepository = new RoleRepository($connection);
-        $this->roleService = new RoleService($roleRepository);
+        $this->roleService = $roleService;
     }
 
     public function store()
@@ -26,6 +24,19 @@ class RoleController
         $request = new RoleStoreRequest();
         $request->name = $data['name'] ?? null;
 
-        $this->roleService->create($request);
+        try {
+            $response = $this->roleService->createRole($request);
+            
+            ResponseHelper::success($response['message'], $response['data']);
+        } catch (ValidationException $ve) {
+            ResponseHelper::error(
+                $ve->getMessage(), 
+                $ve->getErrors(), 
+                $ve->getCode(), 
+                $ve->getStatusCode()
+            );
+        } catch (\Throwable $th) {
+            ResponseHelper::error('Something went wrong, Please try again.');
+        }
     }
 }

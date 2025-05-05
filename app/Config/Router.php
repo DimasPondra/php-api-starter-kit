@@ -10,7 +10,7 @@ class Router
     (
         string $method, 
         string $path, 
-        string $controller, 
+        string|object $controller, 
         string $function, 
         array $middlewares = []
     ): void
@@ -43,7 +43,12 @@ class Router
                 }
 
                 $function = $route['function'];
-                $controller = new $route['controller'];
+
+                if (is_object($route['controller'])) {
+                    $controller = $route['controller'];
+                } else {
+                    $controller = new $route['controller'];
+                }
 
                 array_shift($variables);
                 call_user_func_array([$controller, $function], $variables);
