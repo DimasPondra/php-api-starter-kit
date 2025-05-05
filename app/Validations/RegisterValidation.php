@@ -2,14 +2,13 @@
 
 namespace Pondra\PhpApiStarterKit\Validations;
 
-use Pondra\PhpApiStarterKit\Config\Database;
-use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
+use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
 use Pondra\PhpApiStarterKit\Repositories\UserRepository;
 use Pondra\PhpApiStarterKit\Requests\RegisterRequest;
 
 class RegisterValidation
 {
-    public static UserRepository $userRepository;
+    private static UserRepository $userRepository;
 
     public static function setUserRepository(UserRepository $userRepository): void
     {
@@ -43,8 +42,7 @@ class RegisterValidation
         }
 
         if (!empty($errors)) {
-            ResponseHelper::error('Validation failed.', $errors, 422, 'Unprocessable Entity');
-            exit();
+            throw new ValidationException($errors);
         }
 
         return true;

@@ -2,8 +2,8 @@
 
 namespace Pondra\PhpApiStarterKit\Controllers;
 
-use Pondra\PhpApiStarterKit\Config\Database;
-use Pondra\PhpApiStarterKit\Repositories\UserRepository;
+use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
+use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
 use Pondra\PhpApiStarterKit\Requests\RegisterRequest;
 use Pondra\PhpApiStarterKit\Services\UserService;
 
@@ -11,11 +11,9 @@ class AuthController
 {
     private UserService $userService;
 
-    public function __construct()
+    public function __construct(UserService $userService)
     {
-        $connection = Database::getConnection();
-        $userRepository = new UserRepository($connection);
-        $this->userService = new UserService($userRepository);
+        $this->userService = $userService;
     }
 
     public function register()
@@ -28,6 +26,19 @@ class AuthController
         $request->email = $data['email'] ?? null;
         $request->password = $data['password'] ?? null;
 
-        $this->userService->register($request);
+        try {
+            $response = $this->userService->register($request);
+            
+            ResponseHelper::success($response['message'], $response['data']);
+        } catch (ValidationException $ve) {
+            ResponseHelper::error(
+                $ve->getMessage(), 
+                $ve->getErrors(), 
+                $ve->getCode(), 
+                $ve->getStatusCode()
+            );
+        } catch (\Throwable $th) {
+            ResponseHelper::error('Something went wrong, Please try again.');
+        }
     }
 }
