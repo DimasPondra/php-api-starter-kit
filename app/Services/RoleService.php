@@ -21,6 +21,20 @@ class RoleService
         RoleStoreValidation::setRoleRepository($roleRepository);
     }
 
+    public function getRoles()
+    {
+        $roles = $this->roleRepository->getAllRoles();
+
+        $message = $roles === null ? 
+            'No role data has been created yet.' : 
+            'All roles retrieved successfully.';
+
+        return [
+            'message' => $message,
+            'data' => $roles
+        ];
+    }
+
     public function createRole(RoleStoreRequest $request)
     {
         RoleStoreValidation::validation($request);

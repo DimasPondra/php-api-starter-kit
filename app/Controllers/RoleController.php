@@ -16,6 +16,17 @@ class RoleController
         $this->roleService = $roleService;
     }
 
+    public function index()
+    {
+        try {
+            $response = $this->roleService->getRoles();
+            
+            ResponseHelper::success($response['message'], $response['data']);
+        } catch (\Throwable $th) {
+            ResponseHelper::error('Something went wrong, Please try again.');
+        }
+    }
+
     public function store()
     {
         $inputJSON = file_get_contents('php://input');

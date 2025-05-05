@@ -11,4 +11,5 @@ $roleRepo = new RoleRepository($connection);
 $roleService = new RoleService($roleRepo);
 $roleController = new RoleController($roleService);
 
+Router::add('GET', '/api/roles/', $roleController, 'index');
 Router::add('POST', '/api/roles/store', $roleController, 'store');

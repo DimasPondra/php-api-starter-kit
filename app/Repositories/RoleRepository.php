@@ -14,6 +14,33 @@ class RoleRepository
         $this->connection = $connection;
     }
 
+    public function getAllRoles(): ?array
+    {
+        $statement = $this->connection->prepare('SELECT id, name, slug FROM roles');
+        $statement->execute();
+
+        try {
+            if ($rows = $statement->fetchAll()) {
+                $roles = [];
+
+                foreach ($rows as $row) {
+                    $role = new Role();
+                    $role->id = $row['id'];
+                    $role->name = $row['name'];
+                    $role->slug = $row['slug'];
+
+                    $roles[] = $role;
+                }
+
+                return $roles;
+            } else {
+                return null;
+            }
+        } finally {
+            $statement->closeCursor();
+        }
+    }
+
     public function findByName(string $name): ?Role
     {
         $statement = $this->connection->prepare('SELECT id, name, slug FROM roles WHERE name = ?');
