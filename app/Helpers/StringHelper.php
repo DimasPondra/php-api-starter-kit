@@ -21,4 +21,11 @@ class StringHelper
 
         return $str;
     }
+
+    public static function lower($str): string
+    {
+        $str = strtolower(trim($str));
+
+        return $str;
+    }
 }

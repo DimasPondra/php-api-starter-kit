@@ -4,6 +4,7 @@ namespace Pondra\PhpApiStarterKit\Services;
 
 use Exception;
 use Pondra\PhpApiStarterKit\Config\Database;
+use Pondra\PhpApiStarterKit\Helpers\StringHelper;
 use Pondra\PhpApiStarterKit\Models\User;
 use Pondra\PhpApiStarterKit\Repositories\RoleRepository;
 use Pondra\PhpApiStarterKit\Repositories\UserRepository;
@@ -41,8 +42,8 @@ class UserService
 
             $user = new User();
             $user->id = Uuid::uuid4();
-            $user->name = $request->name;
-            $user->email = $request->email;
+            $user->name = StringHelper::capitalize($request->name);
+            $user->email = StringHelper::lower($request->email);
             $user->password = password_hash($request->password, PASSWORD_BCRYPT);
             $user->role_id = $role->id;
             $user->created_at = date('Y-m-d H:i:s');
