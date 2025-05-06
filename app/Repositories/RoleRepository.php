@@ -41,6 +41,27 @@ class RoleRepository
         }
     }
 
+    public function findById(string $id): ?Role
+    {
+        $statement = $this->connection->prepare('SELECT id, name, slug FROM roles WHERE id = ?');
+        $statement->execute([$id]);
+
+        try {
+            if ($row = $statement->fetch()) {
+                $role = new Role();
+                $role->id = $row['id'];
+                $role->name = $row['name'];
+                $role->slug = $row['slug'];
+
+                return $role;
+            } else {
+                return null;
+            }
+        } finally {
+            $statement->closeCursor();
+        }
+    }
+
     public function findByName(string $name): ?Role
     {
         $statement = $this->connection->prepare('SELECT id, name, slug FROM roles WHERE name = ?');

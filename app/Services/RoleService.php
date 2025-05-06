@@ -2,7 +2,9 @@
 
 namespace Pondra\PhpApiStarterKit\Services;
 
+use Exception;
 use Pondra\PhpApiStarterKit\Config\Database;
+use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
 use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
 use Pondra\PhpApiStarterKit\Helpers\StringHelper;
 use Pondra\PhpApiStarterKit\Models\Role;
@@ -32,6 +34,20 @@ class RoleService
         return [
             'message' => $message,
             'data' => $roles
+        ];
+    }
+
+    public function getRole(string $id)
+    {
+        $role = $this->roleRepository->findById($id);
+
+        if ($role === null) {
+            throw new ValidationException(null, 'Role not found.', 404);
+        }
+
+        return [
+            'message' => 'Role retrieved successfully.',
+            'data' => $role
         ];
     }
 
