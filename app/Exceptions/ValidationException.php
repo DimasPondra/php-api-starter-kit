@@ -22,7 +22,9 @@ class ValidationException extends Exception
 
     public function getStatusCode(): string
     {
-        if ($this->code === 404) {
+        if ($this->code === 400) {
+            $this->statusCode = 'Bad Request';
+        } else if ($this->code === 404) {
             $this->statusCode = 'Not Found';
         }
 

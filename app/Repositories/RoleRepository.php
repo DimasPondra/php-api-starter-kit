@@ -103,4 +103,10 @@ class RoleRepository
 
         return $role;
     }
+
+    public function deleteById(string $id)
+    {
+        $statement = $this->connection->prepare('DELETE FROM roles WHERE id = ?');
+        $statement->execute([$id]);
+    }
 }

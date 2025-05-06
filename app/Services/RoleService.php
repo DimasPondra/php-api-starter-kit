@@ -9,6 +9,7 @@ use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
 use Pondra\PhpApiStarterKit\Helpers\StringHelper;
 use Pondra\PhpApiStarterKit\Models\Role;
 use Pondra\PhpApiStarterKit\Repositories\RoleRepository;
+use Pondra\PhpApiStarterKit\Repositories\UserRepository;
 use Pondra\PhpApiStarterKit\Requests\RoleStoreRequest;
 use Pondra\PhpApiStarterKit\Requests\RoleUpdateRequest;
 use Pondra\PhpApiStarterKit\Validations\RoleStoreValidation;
@@ -18,12 +19,16 @@ use Ramsey\Uuid\Uuid;
 class RoleService
 {
     private RoleRepository $roleRepository;
+    private UserRepository $userRepository;
 
     public function __construct(RoleRepository $roleRepository)
     {
         $this->roleRepository = $roleRepository;
         RoleStoreValidation::setRoleRepository($roleRepository);
         RoleUpdateValidation::setRoleRepository($roleRepository);
+
+        $connection = Database::getConnection();
+        $this->userRepository = new UserRepository($connection);
     }
 
     public function getRoles()
@@ -119,6 +124,40 @@ class RoleService
                     'name' => $role->name,
                     'slug' => $role->slug
                 ]
+            ];
+        } catch (\Throwable $th) {
+            Database::rollbackTransaction();
+
+            throw $th;
+        }
+    }
+
+    public function deleteRole(string $id)
+    {
+        $role = $this->roleRepository->findById($id);
+
+        if ($role === null) {
+            throw new ValidationException(null, 'Role not found.', 404);
+        }
+
+        $users = $this->userRepository->getAllUsers([
+            'role_id' => $role->id,
+        ]);
+
+        if ($users !== null) {
+            throw new ValidationException(null, 'Cannot delete. This record has existing relationships.', 400);
+        }
+
+        try {
+            Database::beginTransaction();
+
+            $this->roleRepository->deleteById($id);
+
+            Database::commitTransaction();
+
+            return [
+                'message' => 'Role successfully deleted.',
+                'data' => null
             ];
         } catch (\Throwable $th) {
             Database::rollbackTransaction();

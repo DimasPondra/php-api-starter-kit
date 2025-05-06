@@ -93,4 +93,22 @@ class RoleController
             ResponseHelper::error('Something went wrong, Please try again.');
         }
     }
+
+    public function delete(string $id)
+    {
+        try {
+            $response = $this->roleService->deleteRole($id);
+            
+            ResponseHelper::success($response['message'], $response['data']);
+        } catch (ValidationException $ve) {
+            ResponseHelper::error(
+                $ve->getMessage(), 
+                $ve->getErrors(), 
+                $ve->getCode(), 
+                $ve->getStatusCode()
+            );
+        } catch (\Throwable $th) {
+            ResponseHelper::error('Something went wrong, Please try again.');
+        }
+    }
 }
