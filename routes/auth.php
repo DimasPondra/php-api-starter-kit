@@ -12,3 +12,4 @@ $userService = new UserService($userRepo);
 $authController = new AuthController($userService);
 
 Router::add('POST', '/api/auth/register', $authController, 'register');
+Router::add('POST', '/api/auth/login', $authController, 'login');

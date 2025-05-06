@@ -56,7 +56,7 @@ class UserRepository
 
     public function findByEmail(string $email): ?User
     {
-        $statement = $this->connection->prepare('SELECT id, name, email FROM users WHERE email = ?');
+        $statement = $this->connection->prepare('SELECT id, name, email, password, role_id FROM users WHERE email = ?');
         $statement->execute([$email]);
 
         try {
@@ -65,6 +65,8 @@ class UserRepository
                 $user->id = $row['id'];
                 $user->name = $row['name'];
                 $user->email = $row['email'];
+                $user->password = $row['password'];
+                $user->role_id = $row['role_id'];
 
                 return $user;
             } else {

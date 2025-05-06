@@ -24,6 +24,8 @@ class ValidationException extends Exception
     {
         if ($this->code === 400) {
             $this->statusCode = 'Bad Request';
+        } else if ($this->code === 401) {
+            $this->statusCode = 'Unauthorized';
         } else if ($this->code === 404) {
             $this->statusCode = 'Not Found';
         }
