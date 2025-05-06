@@ -5,6 +5,7 @@ namespace Pondra\PhpApiStarterKit\Controllers;
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
 use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
 use Pondra\PhpApiStarterKit\Requests\RoleStoreRequest;
+use Pondra\PhpApiStarterKit\Requests\RoleUpdateRequest;
 use Pondra\PhpApiStarterKit\Services\RoleService;
 
 class RoleController
@@ -66,6 +67,30 @@ class RoleController
             );
         } catch (\Throwable $th) {
             ResponseHelper::error('Something went wrong, Please try again.'.$th->getMessage());
+        }
+    }
+
+    public function update(string $id)
+    {
+        $inputJSON = file_get_contents('php://input');
+        $data = json_decode($inputJSON, true);
+
+        $request = new RoleUpdateRequest();
+        $request->name = $data['name'] ?? null;
+
+        try {
+            $response = $this->roleService->updateRole($request, $id);
+            
+            ResponseHelper::success($response['message'], $response['data']);
+        } catch (ValidationException $ve) {
+            ResponseHelper::error(
+                $ve->getMessage(), 
+                $ve->getErrors(), 
+                $ve->getCode(), 
+                $ve->getStatusCode()
+            );
+        } catch (\Throwable $th) {
+            ResponseHelper::error('Something went wrong, Please try again.');
         }
     }
 }

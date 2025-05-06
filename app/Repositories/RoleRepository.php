@@ -93,4 +93,14 @@ class RoleRepository
 
         return $role;
     }
+
+    public function update(Role $role): Role
+    {
+        $statement = $this->connection->prepare('UPDATE roles SET name = ?, slug = ?, updated_at = ? WHERE id = ?');
+        $statement->execute([
+            $role->name, $role->slug, $role->updatedAt, $role->id
+        ]);
+
+        return $role;
+    }
 }

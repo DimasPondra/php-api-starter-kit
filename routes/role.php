@@ -14,3 +14,4 @@ $roleController = new RoleController($roleService);
 Router::add('GET', '/api/roles/', $roleController, 'index');
 Router::add('POST', '/api/roles/store', $roleController, 'store');
 Router::add('GET', '/api/roles/([0-9a-zA-Z-]+)/show', $roleController, 'show');
+Router::add('PUT', '/api/roles/([0-9a-zA-Z-]+)/update', $roleController, 'update');

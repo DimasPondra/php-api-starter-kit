@@ -10,7 +10,9 @@ use Pondra\PhpApiStarterKit\Helpers\StringHelper;
 use Pondra\PhpApiStarterKit\Models\Role;
 use Pondra\PhpApiStarterKit\Repositories\RoleRepository;
 use Pondra\PhpApiStarterKit\Requests\RoleStoreRequest;
+use Pondra\PhpApiStarterKit\Requests\RoleUpdateRequest;
 use Pondra\PhpApiStarterKit\Validations\RoleStoreValidation;
+use Pondra\PhpApiStarterKit\Validations\RoleUpdateValidation;
 use Ramsey\Uuid\Uuid;
 
 class RoleService
@@ -21,6 +23,7 @@ class RoleService
     {
         $this->roleRepository = $roleRepository;
         RoleStoreValidation::setRoleRepository($roleRepository);
+        RoleUpdateValidation::setRoleRepository($roleRepository);
     }
 
     public function getRoles()
@@ -73,6 +76,44 @@ class RoleService
 
             return [
                 'message' => 'Role successfully created.',
+                'data' => [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                    'slug' => $role->slug
+                ]
+            ];
+        } catch (\Throwable $th) {
+            Database::rollbackTransaction();
+
+            throw $th;
+        }
+    }
+
+    public function updateRole(RoleUpdateRequest $request, string $id)
+    {
+        $role = $this->roleRepository->findById($id);
+
+        if ($role === null) {
+            throw new ValidationException(null, 'Role not found.', 404);
+        }
+
+        RoleUpdateValidation::validation($request, $role);
+
+        try {
+            Database::beginTransaction();
+
+            date_default_timezone_set("Asia/Jakarta");
+
+            $role->name = $request->name;
+            $role->slug = StringHelper::slug($request->name);
+            $role->updatedAt = date('Y-m-d H:i:s');
+
+            $this->roleRepository->update($role);
+
+            Database::commitTransaction();
+
+            return [
+                'message' => 'Role successfully updated.',
                 'data' => [
                     'id' => $role->id,
                     'name' => $role->name,
