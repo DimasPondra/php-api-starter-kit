@@ -3,6 +3,7 @@
 namespace Pondra\PhpApiStarterKit\Validations;
 
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
+use Pondra\PhpApiStarterKit\Helpers\StringHelper;
 use Pondra\PhpApiStarterKit\Models\Role;
 use Pondra\PhpApiStarterKit\Repositories\RoleRepository;
 use Pondra\PhpApiStarterKit\Requests\RoleUpdateRequest;
@@ -20,7 +21,9 @@ class RoleUpdateValidation
     {
         $errors = [];
 
-        if ($request->name == null || trim($request->name) == null) {
+        $request->name = StringHelper::capitalize($request->name);
+
+        if ($request->name == null) {
             $errors['name'][] = 'name is required.';
         } else if (strlen($request->name) > 255) {
             $errors['name'][] = 'name to long, max 255 characters.';

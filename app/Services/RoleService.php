@@ -70,7 +70,7 @@ class RoleService
 
             $role = new Role();
             $role->id = Uuid::uuid4();
-            $role->name = $request->name;
+            $role->name = StringHelper::capitalize($request->name);
             $role->slug = StringHelper::slug($request->name);
             $role->createdAt = date('Y-m-d H:i:s');
             $role->updatedAt = date('Y-m-d H:i:s');
@@ -109,7 +109,7 @@ class RoleService
 
             date_default_timezone_set("Asia/Jakarta");
 
-            $role->name = $request->name;
+            $role->name = StringHelper::capitalize($request->name);
             $role->slug = StringHelper::slug($request->name);
             $role->updatedAt = date('Y-m-d H:i:s');
 

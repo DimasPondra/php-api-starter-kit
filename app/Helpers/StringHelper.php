@@ -13,4 +13,12 @@ class StringHelper
 
         return $str;
     }
+
+    public static function capitalize($str): string
+    {
+        $str = strtolower(trim($str));
+        $str = ucwords($str);
+
+        return $str;
+    }
 }
