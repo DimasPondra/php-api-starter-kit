@@ -54,6 +54,26 @@ class UserRepository
         }
     }
 
+    public function findById(string $id): ?User
+    {
+        $statement = $this->connection->prepare('SELECT id, role_id FROM users WHERE id = ?');
+        $statement->execute([$id]);
+
+        try {
+            if ($row = $statement->fetch()) {
+                $user = new User();
+                $user->id = $row['id'];
+                $user->role_id = $row['role_id'];
+
+                return $user;
+            } else {
+                return null;
+            }
+        } finally {
+            $statement->closeCursor();
+        }
+    }
+
     public function findByEmail(string $email): ?User
     {
         $statement = $this->connection->prepare('SELECT id, name, email, password, role_id FROM users WHERE email = ?');
