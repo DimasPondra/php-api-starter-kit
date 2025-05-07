@@ -24,6 +24,11 @@ class AuthMiddleware implements Middleware
     {
         $token = AuthHelper::getToken();
 
+        if ($token === null) {
+            ResponseHelper::error('Authentication token is missing. Please provide a valid token to access this resource.', null, 401, 'Unauthorized');
+            exit;
+        }
+        
         $pat = $this->patRepository->findByToken($token);
         if ($pat === null) {
             ResponseHelper::error('Unauthorized.', ['token' => 'Token invalid.'], 401, 'Unauthorized');

@@ -127,4 +127,19 @@ class UserService
             throw $th;
         }
     }
+
+    public function getUserFromToken(string $token)
+    {
+        $pat = $this->patRepository->findByToken($token);
+        $user = $this->userRepository->findById($pat->user_id);
+
+        return [
+            'message' => 'User retrieved successfully.',
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email
+            ]
+        ];
+    }
 }

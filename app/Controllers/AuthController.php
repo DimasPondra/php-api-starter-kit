@@ -3,6 +3,7 @@
 namespace Pondra\PhpApiStarterKit\Controllers;
 
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
+use Pondra\PhpApiStarterKit\Helpers\AuthHelper;
 use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
 use Pondra\PhpApiStarterKit\Requests\LoginRequest;
 use Pondra\PhpApiStarterKit\Requests\RegisterRequest;
@@ -63,6 +64,19 @@ class AuthController
                 $ve->getCode(), 
                 $ve->getStatusCode()
             );
+        } catch (\Throwable $th) {
+            ResponseHelper::error('Something went wrong, Please try again.');
+        }
+    }
+
+    public function profile()
+    {
+        $token = AuthHelper::getToken();
+
+        try {
+            $response = $this->userService->getUserFromToken($token);
+            
+            ResponseHelper::success($response['message'], $response['data']);
         } catch (\Throwable $th) {
             ResponseHelper::error('Something went wrong, Please try again.');
         }

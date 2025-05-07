@@ -56,13 +56,15 @@ class UserRepository
 
     public function findById(string $id): ?User
     {
-        $statement = $this->connection->prepare('SELECT id, role_id FROM users WHERE id = ?');
+        $statement = $this->connection->prepare('SELECT id, name, email, role_id FROM users WHERE id = ?');
         $statement->execute([$id]);
 
         try {
             if ($row = $statement->fetch()) {
                 $user = new User();
                 $user->id = $row['id'];
+                $user->name = $row['name'];
+                $user->email = $row['email'];
                 $user->role_id = $row['role_id'];
 
                 return $user;
