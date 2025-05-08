@@ -142,4 +142,27 @@ class UserService
             ]
         ];
     }
+
+    public function deleteUserToken(string $token)
+    {
+        $pat = $this->patRepository->findByToken($token);
+
+        try {
+            Database::beginTransaction();
+            
+            // delete all tokens a user.
+            $this->patRepository->deleteByUserId($pat->user_id);
+            
+            Database::commitTransaction();
+    
+            return [
+                'message' => 'You have successfully logged out.',
+                'data' => null
+            ];
+        } catch (\Throwable $th) {
+            Database::rollbackTransaction();
+
+            throw $th;
+        }
+    }
 }

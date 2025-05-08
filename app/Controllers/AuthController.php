@@ -81,4 +81,17 @@ class AuthController
             ResponseHelper::error('Something went wrong, Please try again.');
         }
     }
+
+    public function logout()
+    {
+        $token = AuthHelper::getToken();
+
+        try {
+            $response = $this->userService->deleteUserToken($token);
+            
+            ResponseHelper::success($response['message'], $response['data']);
+        } catch (\Throwable $th) {
+            ResponseHelper::error('Something went wrong, Please try again.');
+        }
+    }
 }

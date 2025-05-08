@@ -15,3 +15,4 @@ $authController = new AuthController($userService);
 Router::add('POST', '/api/auth/register', $authController, 'register');
 Router::add('POST', '/api/auth/login', $authController, 'login');
 Router::add('GET', '/api/auth/profile', $authController, 'profile', [AuthMiddleware::class]);
+Router::add('GET', '/api/auth/logout', $authController, 'logout', [AuthMiddleware::class]);
