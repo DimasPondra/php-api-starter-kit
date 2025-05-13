@@ -13,4 +13,4 @@ $emailService = new EmailService($emailRepo);
 $emailController = new EmailController($emailService);
 
 Router::add('POST', '/api/emails/send-verification', $emailController, 'sendVerification', [AuthMiddleware::class]);
-Router::add('GET', '/api/emails/([0-9a-zA-Z-]+)/verify', EmailController::class, 'verify');
+Router::add('POST', '/api/emails/verify', $emailController, 'verify');

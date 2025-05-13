@@ -2,6 +2,7 @@
 
 namespace Pondra\PhpApiStarterKit\Repositories;
 
+use DateTime;
 use PDO;
 use Pondra\PhpApiStarterKit\Models\User;
 
@@ -56,7 +57,7 @@ class UserRepository
 
     public function findById(string $id): ?User
     {
-        $statement = $this->connection->prepare('SELECT id, name, email, role_id FROM users WHERE id = ?');
+        $statement = $this->connection->prepare('SELECT id, name, email, email_verified_at, role_id FROM users WHERE id = ?');
         $statement->execute([$id]);
 
         try {
@@ -65,6 +66,7 @@ class UserRepository
                 $user->id = $row['id'];
                 $user->name = $row['name'];
                 $user->email = $row['email'];
+                $user->emailVerifiedAt = $row['email_verified_at'] === null ? null : new DateTime($row['email_verified_at']);
                 $user->role_id = $row['role_id'];
 
                 return $user;
@@ -105,6 +107,16 @@ class UserRepository
         $statement->execute([
             $user->id, $user->name, $user->email, $user->password,
             $user->role_id, $user->created_at, $user->updated_at
+        ]);
+
+        return $user;
+    }
+
+    public function verifyEmail(User $user): User
+    {
+        $statement = $this->connection->prepare('UPDATE users SET email_verified_at = ? WHERE id = ?');
+        $statement->execute([
+            $user->emailVerifiedAt->format('Y-m-d H:i:s'), $user->id
         ]);
 
         return $user;

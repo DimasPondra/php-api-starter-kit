@@ -5,11 +5,14 @@ namespace Pondra\PhpApiStarterKit\Services;
 use DateTime;
 use Exception;
 use Pondra\PhpApiStarterKit\Config\Database;
+use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
 use Pondra\PhpApiStarterKit\Helpers\EmailHelper;
 use Pondra\PhpApiStarterKit\Models\Verification;
 use Pondra\PhpApiStarterKit\Repositories\EmailRepository;
 use Pondra\PhpApiStarterKit\Repositories\PersonalAccessTokenRepository;
 use Pondra\PhpApiStarterKit\Repositories\UserRepository;
+use Pondra\PhpApiStarterKit\Requests\VerifyEmailRequest;
+use Pondra\PhpApiStarterKit\Validations\VerifyEmailValidation;
 use Ramsey\Uuid\Uuid;
 
 class EmailService
@@ -32,6 +35,10 @@ class EmailService
         $pat = $this->patRepository->findByToken($token);
         $user = $this->userRepository->findById($pat->user_id);
 
+        if ($user->emailVerifiedAt !== null) {
+            throw new ValidationException(null, 'Email has been verified.', 400);
+        }
+
         $tokenVerification = Uuid::uuid4();
         $urlVerification = "http://localhost:8000/api/emails/$tokenVerification/verify";
 
@@ -43,6 +50,8 @@ class EmailService
 
         try {
             Database::beginTransaction();
+
+            $this->emailRepository->deleteByUserId($user->id);
 
             date_default_timezone_set("Asia/Jakarta");
             $dateTimeNow = new DateTime();
@@ -68,6 +77,44 @@ class EmailService
             
             return [
                 'message' => 'Successfully send email verification.',
+                'data' => null
+            ];
+        } catch (\Throwable $th) {
+            Database::rollbackTransaction();
+
+            throw $th;
+        }
+    }
+
+    public function verifyEmail(VerifyEmailRequest $request)
+    {
+        VerifyEmailValidation::validation($request);
+
+        $verification = $this->emailRepository->findByToken($request->token);
+
+        if ($verification === null) {
+            throw new ValidationException(null, 'Token is invalid.', 400);
+        }
+
+        if ($verification->expiresAt < new DateTime()) {
+            throw new ValidationException(null, 'Token is expired.', 400);
+        }
+
+        $user = $this->userRepository->findById($verification->user_id);
+
+        try {
+            Database::beginTransaction();
+
+            $user->emailVerifiedAt = new DateTime();
+
+            $this->userRepository->verifyEmail($user);
+            
+            $this->emailRepository->deleteByUserId($user->id);
+
+            Database::commitTransaction();
+
+            return [
+                'message' => 'Successfully verify email.',
                 'data' => null
             ];
         } catch (\Throwable $th) {
