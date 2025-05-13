@@ -2,11 +2,13 @@
 
 namespace Pondra\PhpApiStarterKit\Models;
 
+use DateTime;
+
 class Role
 {
     public string $id;
     public string $name;
     public string $slug;
-    public string $createdAt;
-    public string $updatedAt;
+    public ?DateTime $createdAt;
+    public ?DateTime $updatedAt;
 }

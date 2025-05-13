@@ -10,9 +10,9 @@ class PersonalAccessToken
     public string $user_id;
     public string $name;
     public string $token;
-    public string $abilities;
-    public DateTime $lastUsedAt;
+    public ?string $abilities;
+    public ?DateTime $lastUsedAt;
     public DateTime $expiresAt;
-    public DateTime $createdAt;
-    public DateTime $updatedAt;
+    public ?DateTime $createdAt;
+    public ?DateTime $updatedAt;
 }

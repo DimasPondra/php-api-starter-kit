@@ -53,7 +53,6 @@ class EmailService
 
             $this->emailRepository->deleteByUserId($user->id);
 
-            date_default_timezone_set("Asia/Jakarta");
             $dateTimeNow = new DateTime();
 
             $verification = new Verification();
@@ -106,6 +105,7 @@ class EmailService
             Database::beginTransaction();
 
             $user->emailVerifiedAt = new DateTime();
+            $user->updatedAt = new DateTime();
 
             $this->userRepository->verifyEmail($user);
             

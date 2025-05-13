@@ -106,7 +106,7 @@ class UserRepository
         $statement = $this->connection->prepare('INSERT INTO users(id, name, email, password, role_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $statement->execute([
             $user->id, $user->name, $user->email, $user->password,
-            $user->role_id, $user->created_at, $user->updated_at
+            $user->role_id, $user->createdAt->format('Y-m-d H:i:s'), $user->updatedAt->format('Y-m-d H:i:s')
         ]);
 
         return $user;
@@ -114,9 +114,11 @@ class UserRepository
 
     public function verifyEmail(User $user): User
     {
-        $statement = $this->connection->prepare('UPDATE users SET email_verified_at = ? WHERE id = ?');
+        $statement = $this->connection->prepare('UPDATE users SET email_verified_at = ?, updated_at = ? WHERE id = ?');
         $statement->execute([
-            $user->emailVerifiedAt->format('Y-m-d H:i:s'), $user->id
+            $user->emailVerifiedAt->format('Y-m-d H:i:s'),
+            $user->updatedAt->format('Y-m-d H:i:s'),
+            $user->id
         ]);
 
         return $user;

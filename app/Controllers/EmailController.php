@@ -57,7 +57,7 @@ class EmailController
                 $ve->getStatusCode()
             );
         } catch (\Throwable $th) {
-            ResponseHelper::error('Something went wrong, Please try again.'.$th->getMessage());
+            ResponseHelper::error('Something went wrong, Please try again.');
         }
     }
 }

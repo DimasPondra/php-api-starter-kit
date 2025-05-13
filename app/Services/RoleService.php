@@ -2,10 +2,9 @@
 
 namespace Pondra\PhpApiStarterKit\Services;
 
-use Exception;
+use DateTime;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
-use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
 use Pondra\PhpApiStarterKit\Helpers\StringHelper;
 use Pondra\PhpApiStarterKit\Models\Role;
 use Pondra\PhpApiStarterKit\Repositories\RoleRepository;
@@ -66,14 +65,12 @@ class RoleService
         try {
             Database::beginTransaction();
 
-            date_default_timezone_set("Asia/Jakarta");
-
             $role = new Role();
             $role->id = Uuid::uuid4();
             $role->name = StringHelper::capitalize($request->name);
             $role->slug = StringHelper::slug($request->name);
-            $role->createdAt = date('Y-m-d H:i:s');
-            $role->updatedAt = date('Y-m-d H:i:s');
+            $role->createdAt = new DateTime();
+            $role->updatedAt = new DateTime();
 
             $this->roleRepository->save($role);
 
@@ -107,11 +104,9 @@ class RoleService
         try {
             Database::beginTransaction();
 
-            date_default_timezone_set("Asia/Jakarta");
-
             $role->name = StringHelper::capitalize($request->name);
             $role->slug = StringHelper::slug($request->name);
-            $role->updatedAt = date('Y-m-d H:i:s');
+            $role->updatedAt = new DateTime();
 
             $this->roleRepository->update($role);
 

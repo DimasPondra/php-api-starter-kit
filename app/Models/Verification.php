@@ -10,6 +10,6 @@ class Verification
     public string $token;
     public DateTime $expiresAt;
     public string $user_id;
-    public DateTime $createdAt;
-    public DateTime $updatedAt;
+    public ?DateTime $createdAt;
+    public ?DateTime $updatedAt;
 }

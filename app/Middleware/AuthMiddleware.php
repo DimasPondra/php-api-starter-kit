@@ -41,8 +41,6 @@ class AuthMiddleware implements Middleware
             exit;
         }
 
-        date_default_timezone_set("Asia/Jakarta");
-
         if ($pat->expiresAt < new DateTime()) {
 
             try {

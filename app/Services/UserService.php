@@ -46,16 +46,14 @@ class UserService
         try {
             Database::beginTransaction();
 
-            date_default_timezone_set("Asia/Jakarta");
-
             $user = new User();
             $user->id = Uuid::uuid4();
             $user->name = StringHelper::capitalize($request->name);
             $user->email = StringHelper::lower($request->email);
             $user->password = password_hash($request->password, PASSWORD_BCRYPT);
             $user->role_id = $role->id;
-            $user->created_at = date('Y-m-d H:i:s');
-            $user->updated_at = date('Y-m-d H:i:s');
+            $user->createdAt = new DateTime();
+            $user->updatedAt = new DateTime();
 
             $this->userRepository->save($user);
 
@@ -96,7 +94,6 @@ class UserService
 
             $this->patRepository->deleteByUserId($user->id);
 
-            date_default_timezone_set("Asia/Jakarta");
             $dateTimeNow = new DateTime();
 
             $pat = new PersonalAccessToken();

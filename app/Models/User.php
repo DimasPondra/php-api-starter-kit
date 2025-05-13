@@ -12,6 +12,6 @@ class User
     public string $password;
     public ?DateTime $emailVerifiedAt;
     public string $role_id;
-    public string $created_at;
-    public string $updated_at;
+    public ?DateTime $createdAt;
+    public ?DateTime $updatedAt;
 }

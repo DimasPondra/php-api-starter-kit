@@ -87,8 +87,8 @@ class RoleRepository
     {
         $statement = $this->connection->prepare('INSERT INTO roles(id, name, slug, created_at, updated_at) VALUES (?, ?, ?, ?, ?)');
         $statement->execute([
-            $role->id, $role->name, $role->slug, $role->createdAt,
-            $role->updatedAt
+            $role->id, $role->name, $role->slug, $role->createdAt->format('Y-m-d H:i:s'),
+            $role->updatedAt->format('Y-m-d H:i:s')
         ]);
 
         return $role;
@@ -98,7 +98,7 @@ class RoleRepository
     {
         $statement = $this->connection->prepare('UPDATE roles SET name = ?, slug = ?, updated_at = ? WHERE id = ?');
         $statement->execute([
-            $role->name, $role->slug, $role->updatedAt, $role->id
+            $role->name, $role->slug, $role->updatedAt->format('Y-m-d H:i:s'), $role->id
         ]);
 
         return $role;
