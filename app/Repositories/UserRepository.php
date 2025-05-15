@@ -2,8 +2,8 @@
 
 namespace Pondra\PhpApiStarterKit\Repositories;
 
-use DateTime;
 use PDO;
+use Pondra\PhpApiStarterKit\Helpers\DateTimeHelper;
 use Pondra\PhpApiStarterKit\Models\User;
 
 class UserRepository
@@ -66,7 +66,7 @@ class UserRepository
                 $user->id = $row['id'];
                 $user->name = $row['name'];
                 $user->email = $row['email'];
-                $user->emailVerifiedAt = $row['email_verified_at'] === null ? null : new DateTime($row['email_verified_at']);
+                $user->emailVerifiedAt = $row['email_verified_at'] === null ? null : DateTimeHelper::convertUtcToLocal($row['email_verified_at']);
                 $user->role_id = $row['role_id'];
 
                 return $user;

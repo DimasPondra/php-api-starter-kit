@@ -5,6 +5,7 @@ namespace Pondra\PhpApiStarterKit\Middleware;
 use DateTime;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Helpers\AuthHelper;
+use Pondra\PhpApiStarterKit\Helpers\DateTimeHelper;
 use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
 use Pondra\PhpApiStarterKit\Repositories\PersonalAccessTokenRepository;
 use Pondra\PhpApiStarterKit\Repositories\UserRepository;
@@ -41,7 +42,7 @@ class AuthMiddleware implements Middleware
             exit;
         }
 
-        if ($pat->expiresAt < new DateTime()) {
+        if ($pat->expiresAt < DateTimeHelper::nowLocal()) {
 
             try {
                 Database::beginTransaction();

@@ -2,8 +2,8 @@
 
 namespace Pondra\PhpApiStarterKit\Repositories;
 
-use DateTime;
 use PDO;
+use Pondra\PhpApiStarterKit\Helpers\DateTimeHelper;
 use Pondra\PhpApiStarterKit\Models\Verification;
 
 class EmailRepository
@@ -25,7 +25,7 @@ class EmailRepository
                 $verification = new Verification();
                 $verification->id = $row['id'];
                 $verification->token = $row['token'];
-                $verification->expiresAt = new DateTime($row['expires_at']);
+                $verification->expiresAt = DateTimeHelper::convertUtcToLocal($row['expires_at']);
                 $verification->user_id = $row['user_id'];
 
                 return $verification;

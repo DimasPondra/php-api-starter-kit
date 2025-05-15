@@ -6,6 +6,7 @@ use DateTime;
 use Exception;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
+use Pondra\PhpApiStarterKit\Helpers\DateTimeHelper;
 use Pondra\PhpApiStarterKit\Helpers\EmailHelper;
 use Pondra\PhpApiStarterKit\Models\Verification;
 use Pondra\PhpApiStarterKit\Repositories\EmailRepository;
@@ -95,7 +96,7 @@ class EmailService
             throw new ValidationException(null, 'Token is invalid.', 400);
         }
 
-        if ($verification->expiresAt < new DateTime()) {
+        if ($verification->expiresAt < DateTimeHelper::nowLocal()) {
             throw new ValidationException(null, 'Token is expired.', 400);
         }
 
