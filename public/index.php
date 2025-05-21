@@ -7,6 +7,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 require_once __DIR__ . '/../routes/auth.php';
 require_once __DIR__ . '/../routes/email.php';
+require_once __DIR__ . '/../routes/password.php';
 require_once __DIR__ . '/../routes/role.php';
 
 Router::add('GET', '/', HomeController::class, 'index');
