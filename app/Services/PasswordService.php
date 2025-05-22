@@ -10,6 +10,7 @@ use Pondra\PhpApiStarterKit\Helpers\DateTimeHelper;
 use Pondra\PhpApiStarterKit\Helpers\EmailHelper;
 use Pondra\PhpApiStarterKit\Models\PasswordResetToken;
 use Pondra\PhpApiStarterKit\Repositories\PasswordRepository;
+use Pondra\PhpApiStarterKit\Repositories\PersonalAccessTokenRepository;
 use Pondra\PhpApiStarterKit\Repositories\UserRepository;
 use Pondra\PhpApiStarterKit\Requests\ForgotPasswordRequest;
 use Pondra\PhpApiStarterKit\Requests\ResetPasswordRequest;
@@ -21,6 +22,7 @@ class PasswordService
 {
     private PasswordRepository $passwordRepository;
     private UserRepository $userRepository;
+    private PersonalAccessTokenRepository $patRepository;
 
     public function __construct(PasswordRepository $passwordRepository)
     {
@@ -28,6 +30,7 @@ class PasswordService
 
         $connection = Database::getConnection();
         $this->userRepository = new UserRepository($connection);
+        $this->patRepository = new PersonalAccessTokenRepository($connection);
     }
 
     public function forgotPassword(ForgotPasswordRequest $request)
@@ -118,6 +121,7 @@ class PasswordService
             $this->userRepository->resetPassword($user);
             
             $this->passwordRepository->deleteByEmail($user->email);
+            $this->patRepository->deleteByUserId($user->id);
 
             Database::commitTransaction();
 
