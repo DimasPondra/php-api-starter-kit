@@ -123,4 +123,16 @@ class UserRepository
 
         return $user;
     }
+
+    public function resetPassword(User $user): User
+    {
+        $statement = $this->connection->prepare('UPDATE users SET password = ?, updated_at = ? WHERE id = ?');
+        $statement->execute([
+            $user->password,
+            $user->updatedAt->format('Y-m-d H:i:s'),
+            $user->id
+        ]);
+
+        return $user;
+    }
 }

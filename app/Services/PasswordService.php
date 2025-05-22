@@ -6,12 +6,15 @@ use DateTime;
 use Exception;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
+use Pondra\PhpApiStarterKit\Helpers\DateTimeHelper;
 use Pondra\PhpApiStarterKit\Helpers\EmailHelper;
 use Pondra\PhpApiStarterKit\Models\PasswordResetToken;
 use Pondra\PhpApiStarterKit\Repositories\PasswordRepository;
 use Pondra\PhpApiStarterKit\Repositories\UserRepository;
 use Pondra\PhpApiStarterKit\Requests\ForgotPasswordRequest;
+use Pondra\PhpApiStarterKit\Requests\ResetPasswordRequest;
 use Pondra\PhpApiStarterKit\Validations\ForgotPasswordValidation;
+use Pondra\PhpApiStarterKit\Validations\ResetPasswordValidation;
 use Ramsey\Uuid\Uuid;
 
 class PasswordService
@@ -80,6 +83,46 @@ class PasswordService
 
             return [
                 'message' => 'Successfully send email reset password.',
+                'data' => null
+            ];
+        } catch (\Throwable $th) {
+            Database::rollbackTransaction();
+
+            throw $th;
+        }
+    }
+
+    public function resetPassword(ResetPasswordRequest $request)
+    {
+        ResetPasswordValidation::validation($request);
+
+        $hashToken = hash('sha256', $request->token);
+        $prt = $this->passwordRepository->findByToken($hashToken);
+        
+        if ($prt === null) {
+            throw new ValidationException(null, 'Token is invalid.', 400);
+        }
+
+        if ($prt->expiresAt < DateTimeHelper::nowLocal()) {
+            throw new ValidationException(null, 'Token is expired.', 400);
+        }
+
+        $user = $this->userRepository->findByEmail($prt->email);
+
+        try {
+            Database::beginTransaction();
+
+            $user->password = password_hash($request->password, PASSWORD_BCRYPT);
+            $user->updatedAt = new DateTime();
+
+            $this->userRepository->resetPassword($user);
+            
+            $this->passwordRepository->deleteByEmail($user->email);
+
+            Database::commitTransaction();
+
+            return [
+                'message' => 'Successfully reset password.',
                 'data' => null
             ];
         } catch (\Throwable $th) {

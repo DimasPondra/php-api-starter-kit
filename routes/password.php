@@ -12,3 +12,4 @@ $passwordService = new PasswordService($passwordRepo);
 $passwordController = new PasswordController($passwordService);
 
 Router::add('POST', '/api/password/forgot-password', $passwordController, 'forgot');
+Router::add('POST', '/api/password/reset-password', $passwordController, 'reset');
