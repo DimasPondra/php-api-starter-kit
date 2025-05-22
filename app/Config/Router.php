@@ -2,6 +2,8 @@
 
 namespace Pondra\PhpApiStarterKit\Config;
 
+use Dotenv\Dotenv;
+
 class Router
 {
     private static array $routes = [];
@@ -30,6 +32,31 @@ class Router
 
         if (isset($_SERVER['PATH_INFO'])) $path = $_SERVER['PATH_INFO'];
         $method = $_SERVER['REQUEST_METHOD'];
+
+        // CORS Handling
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+        $dotenv->load();
+        
+        $allowedOrigins = explode(',', $_ENV['CORS_ORIGINS']);
+        $allowedOrigins = array_map('trim', $allowedOrigins);
+
+        if (in_array($origin, $allowedOrigins)) {
+            header("Access-Control-Allow-Origin: $origin");
+            header("Access-Control-Allow-Credentials: true"); // If you want to send it with a cookie/session
+        } else {
+            header("Access-Control-Allow-Origin: null");
+        }
+        
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+        // Handle preflight request OPTIONS
+        if ($method === 'OPTIONS') {
+            http_response_code(204); // No Content
+            exit;
+        }
 
         foreach (self::$routes as $route) {
             $pattern = "#^" . $route['path'] . "$#";

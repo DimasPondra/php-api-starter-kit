@@ -3,6 +3,7 @@
 namespace Pondra\PhpApiStarterKit\Services;
 
 use DateTime;
+use Dotenv\Dotenv;
 use Exception;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
@@ -41,7 +42,11 @@ class EmailService
         }
 
         $tokenVerification = Uuid::uuid4();
-        $urlVerification = "http://localhost:8000/api/emails/$tokenVerification/verify";
+
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+        $dotenv->load();
+
+        $urlVerification = $_ENV['URL_EMAIL_VERIFICATION'] . "?token=$tokenVerification";
 
         $bodyMail = "<h1>Halo $user->name,</h1><p>Terima kasih telah mendaftar! 
         Untuk menyelesaikan pendaftaran Anda, silakan klik tautan berikut ini 
