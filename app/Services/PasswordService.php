@@ -3,12 +3,9 @@
 namespace Pondra\PhpApiStarterKit\Services;
 
 use DateTime;
-use Dotenv\Dotenv;
-use Exception;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
 use Pondra\PhpApiStarterKit\Helpers\DateTimeHelper;
-use Pondra\PhpApiStarterKit\Helpers\EmailHelper;
 use Pondra\PhpApiStarterKit\Models\PasswordResetToken;
 use Pondra\PhpApiStarterKit\Repositories\PasswordRepository;
 use Pondra\PhpApiStarterKit\Repositories\PersonalAccessTokenRepository;
@@ -52,17 +49,6 @@ class PasswordService
             $hashToken = hash('sha256', $token);
         } while ($this->passwordRepository->findByToken($hashToken));
 
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-        $dotenv->load();
-
-        $urlResetPassword = $_ENV['URL_RESET_PASSWORD'] . "?token=$token";
-
-        $bodyMail = "<h1>Halo $user->name,</h1><p>Kami menerima permintaan untuk
-        mereset password akun Anda. Silahkan klik tautan berikut ini untuk mengatur
-        ulang password Anda:</p><a href=$urlResetPassword>Reset Password Saya</a>
-        <p>Jika Anda tidak melakukan permintaan ini, abaikan saja email ini.</p>
-        Salam,<br>PHP Starter Kit";
-
         try {
             Database::beginTransaction();
 
@@ -79,12 +65,7 @@ class PasswordService
 
             $this->passwordRepository->save($prt);
 
-            $emailHelper = new EmailHelper();
-            $responseSendEmail = $emailHelper->sendEmail($user->email, 'PHP Starter Kit', $bodyMail);
-
-            if (!$responseSendEmail) {
-                throw new Exception('Failed send email');
-            }
+            // Simpan ke queue (reset_password)
 
             Database::commitTransaction();
 

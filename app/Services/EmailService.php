@@ -3,12 +3,9 @@
 namespace Pondra\PhpApiStarterKit\Services;
 
 use DateTime;
-use Dotenv\Dotenv;
-use Exception;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
 use Pondra\PhpApiStarterKit\Helpers\DateTimeHelper;
-use Pondra\PhpApiStarterKit\Helpers\EmailHelper;
 use Pondra\PhpApiStarterKit\Models\Verification;
 use Pondra\PhpApiStarterKit\Repositories\EmailRepository;
 use Pondra\PhpApiStarterKit\Repositories\PersonalAccessTokenRepository;
@@ -43,17 +40,6 @@ class EmailService
 
         $tokenVerification = Uuid::uuid4();
 
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-        $dotenv->load();
-
-        $urlVerification = $_ENV['URL_EMAIL_VERIFICATION'] . "?token=$tokenVerification";
-
-        $bodyMail = "<h1>Halo $user->name,</h1><p>Terima kasih telah mendaftar! 
-        Untuk menyelesaikan pendaftaran Anda, silakan klik tautan berikut ini 
-        untuk memverifikasi alamat email Anda:</p><a href=$urlVerification>
-        Verifikasi Alamat Email Saya</a><p>Jika Anda tidak mendaftar akun ini, 
-        abaikan saja email ini.</p>Salam,<br>PHP Starter Kit";
-
         try {
             Database::beginTransaction();
 
@@ -71,12 +57,7 @@ class EmailService
 
             $this->emailRepository->save($verification);
 
-            $emailHelper = new EmailHelper();
-            $responseSendEmail = $emailHelper->sendEmail($user->email, 'PHP Starter Kit', $bodyMail);
-
-            if (!$responseSendEmail) {
-                throw new Exception('Failed send email');
-            }
+            // Simpan ke queue (verification_email)
 
             Database::commitTransaction();
             
