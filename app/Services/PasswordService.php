@@ -45,6 +45,10 @@ class PasswordService
             throw new ValidationException(null, 'Email is invalid.', 400);
         }
 
+        if ($user->emailVerifiedAt === null) {
+            throw new ValidationException(null, 'Email unverified. Please verify your email first to proceed.', 400);
+        }
+
         do {
             $token = Uuid::uuid4()->toString();
             $hashToken = hash('sha256', $token);
