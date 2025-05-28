@@ -74,7 +74,7 @@ class EmailQueueRepository
                     $eQ->id = $row['id'];
                     $eQ->name = $row['name'];
                     $eQ->email = $row['email'];
-                    $eQ->email_type = $row['email_type'];
+                    $eQ->emailType = $row['email_type'];
                     $eQ->token = $row['token'];
                     $eQ->status = $row['status'];
 
@@ -97,9 +97,21 @@ class EmailQueueRepository
             $emailQueue->id,
             $emailQueue->name,
             $emailQueue->email,
-            $emailQueue->email_type,
+            $emailQueue->emailType,
             $emailQueue->token,
             $emailQueue->createdAt->format('Y-m-d H:i:s')
+        ]);
+
+        return $emailQueue;
+    }
+
+    public function update(EmailQueue $emailQueue): EmailQueue
+    {
+        $sentAt = $emailQueue->sentAt !== null ? $emailQueue->sentAt->format('Y-m-d H:i:s') : null;
+
+        $statement = $this->connection->prepare('UPDATE email_queue SET status = ?, sent_at = ? WHERE id = ?');
+        $statement->execute([
+            $emailQueue->status, $sentAt, $emailQueue->id
         ]);
 
         return $emailQueue;

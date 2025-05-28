@@ -6,7 +6,9 @@ use DateTime;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
 use Pondra\PhpApiStarterKit\Helpers\DateTimeHelper;
+use Pondra\PhpApiStarterKit\Models\EmailQueue;
 use Pondra\PhpApiStarterKit\Models\Verification;
+use Pondra\PhpApiStarterKit\Repositories\EmailQueueRepository;
 use Pondra\PhpApiStarterKit\Repositories\EmailRepository;
 use Pondra\PhpApiStarterKit\Repositories\PersonalAccessTokenRepository;
 use Pondra\PhpApiStarterKit\Repositories\UserRepository;
@@ -19,6 +21,7 @@ class EmailService
     private EmailRepository $emailRepository;
     private PersonalAccessTokenRepository $patRepository;
     private UserRepository $userRepository;
+    private EmailQueueRepository $emailQueueRepository;
 
     public function __construct(EmailRepository $emailRepository)
     {
@@ -27,6 +30,7 @@ class EmailService
         $connection = Database::getConnection();
         $this->patRepository = new PersonalAccessTokenRepository($connection);
         $this->userRepository = new UserRepository($connection);
+        $this->emailQueueRepository = new EmailQueueRepository($connection);
     }
     
     public function sendVerificationEmail(string $token)
@@ -57,7 +61,15 @@ class EmailService
 
             $this->emailRepository->save($verification);
 
-            // Simpan ke queue (verification_email)
+            $emailQueue = new EmailQueue();
+            $emailQueue->id = Uuid::uuid4();
+            $emailQueue->name = $user->name;
+            $emailQueue->email = $user->email;
+            $emailQueue->emailType = 'verification_email';
+            $emailQueue->token = $tokenVerification;
+            $emailQueue->createdAt = new DateTime();
+
+            $this->emailQueueRepository->save($emailQueue);
 
             Database::commitTransaction();
             

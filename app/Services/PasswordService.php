@@ -6,7 +6,9 @@ use DateTime;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
 use Pondra\PhpApiStarterKit\Helpers\DateTimeHelper;
+use Pondra\PhpApiStarterKit\Models\EmailQueue;
 use Pondra\PhpApiStarterKit\Models\PasswordResetToken;
+use Pondra\PhpApiStarterKit\Repositories\EmailQueueRepository;
 use Pondra\PhpApiStarterKit\Repositories\PasswordRepository;
 use Pondra\PhpApiStarterKit\Repositories\PersonalAccessTokenRepository;
 use Pondra\PhpApiStarterKit\Repositories\UserRepository;
@@ -21,6 +23,7 @@ class PasswordService
     private PasswordRepository $passwordRepository;
     private UserRepository $userRepository;
     private PersonalAccessTokenRepository $patRepository;
+    private EmailQueueRepository $emailQueueRepository;
 
     public function __construct(PasswordRepository $passwordRepository)
     {
@@ -29,6 +32,7 @@ class PasswordService
         $connection = Database::getConnection();
         $this->userRepository = new UserRepository($connection);
         $this->patRepository = new PersonalAccessTokenRepository($connection);
+        $this->emailQueueRepository = new EmailQueueRepository($connection);
     }
 
     public function forgotPassword(ForgotPasswordRequest $request)
@@ -40,9 +44,6 @@ class PasswordService
         if ($user === null) {
             throw new ValidationException(null, 'Email is invalid.', 400);
         }
-
-        $token = Uuid::uuid4()->toString();
-        $hashToken = hash('sha256', $token);
 
         do {
             $token = Uuid::uuid4()->toString();
@@ -65,7 +66,15 @@ class PasswordService
 
             $this->passwordRepository->save($prt);
 
-            // Simpan ke queue (reset_password)
+            $emailQueue = new EmailQueue();
+            $emailQueue->id = Uuid::uuid4();
+            $emailQueue->name = $user->name;
+            $emailQueue->email = $user->email;
+            $emailQueue->emailType = 'reset_password';
+            $emailQueue->token = $token;
+            $emailQueue->createdAt = new DateTime();
+
+            $this->emailQueueRepository->save($emailQueue);
 
             Database::commitTransaction();
 

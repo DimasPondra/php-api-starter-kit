@@ -2,6 +2,7 @@
 
 namespace Pondra\PhpApiStarterKit\Jobs;
 
+use DateTime;
 use Dotenv\Dotenv;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Helpers\EmailHelper;
@@ -26,37 +27,50 @@ class EmailQueueJob
             $emailQueue = $this->emailQueueRepository->getAllEmailQueue([
                 'status' => ['pending','failed']
             ], 10);
-            
-            foreach ($emailQueue as $eQ) {
-                $name = $eQ->name;
-                $email = $eQ->email;
-                $type = $eQ->email_type;
-                $token = $eQ->token;
 
-                $url = null;
-                $body = null;
+            if (!empty($emailQueue)) {
+                foreach ($emailQueue as $eQ) {
+                    $name = $eQ->name;
+                    $email = $eQ->email;
+                    $type = $eQ->emailType;
+                    $token = $eQ->token;
 
-                if ($type === 'verification_email') {
-                    $url = $_ENV['URL_EMAIL_VERIFICATION'] . "?token=$token";
-                    $body = $this->bodyVerificationEmail($name, $url);
+                    $url = null;
+                    $body = null;
+
+                    if ($type === 'verification_email') {
+                        $url = $_ENV['URL_EMAIL_VERIFICATION'] . "?token=$token";
+                        $body = $this->bodyVerificationEmail($name, $url);
+                        
+                    } else if ($type === 'reset_password') {
+                        $url = $_ENV['URL_RESET_PASSWORD'] . "?token=$token";
+                        $body = $this->bodyResetPassword($name, $url);
+                    }
+
+                    $emailHelper = new EmailHelper();
+                    $responseSendEmail = $emailHelper->sendEmail($email, 'PHP Starter Kit', $body); // res true or false
                     
-                } else if ($type === 'reset_password') {
-                    $url = $_ENV['URL_RESET_PASSWORD'] . "?token=$token";
-                    $body = $this->bodyResetPassword($name, $url);
+                    if (!$responseSendEmail) {
+                        $eQ->status = 'failed';
+                        $eQ->sentAt = null;
+                    } else {
+                        $eQ->status = 'sent';
+                        $eQ->sentAt = new DateTime();
+                    }
+
+                    Database::beginTransaction();
+
+                    $this->emailQueueRepository->update($eQ);
+
+                    Database::commitTransaction();
                 }
-
-                $emailHelper = new EmailHelper();
-                $responseSendEmail = $emailHelper->sendEmail($email, 'PHP Starter Kit', $body); // res true or false
-                
-                var_dump($responseSendEmail);
-                die();
             }
-
         } catch (\Throwable $th) {
+            Database::rollbackTransaction();
+
             var_dump($th->getMessage());
             die();
         }
-
     }
 
     private function bodyVerificationEmail($name, $url): string
