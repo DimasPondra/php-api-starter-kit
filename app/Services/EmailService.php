@@ -42,7 +42,10 @@ class EmailService
             throw new ValidationException(null, 'Email has been verified.', 400);
         }
 
-        $tokenVerification = Uuid::uuid4();
+        do {
+            $token = Uuid::uuid4()->toString();
+            $hashToken = hash('sha256', $token);
+        } while ($this->emailRepository->findByToken($hashToken));
 
         try {
             Database::beginTransaction();
@@ -53,7 +56,7 @@ class EmailService
 
             $verification = new Verification();
             $verification->id = Uuid::uuid4();
-            $verification->token = $tokenVerification;
+            $verification->token = $hashToken;
             $verification->expiresAt = $dateTimeNow->modify('+1 day');
             $verification->user_id = $user->id;
             $verification->createdAt = new DateTime();
@@ -66,7 +69,7 @@ class EmailService
             $emailQueue->name = $user->name;
             $emailQueue->email = $user->email;
             $emailQueue->emailType = 'verification_email';
-            $emailQueue->token = $tokenVerification;
+            $emailQueue->token = $token;
             $emailQueue->createdAt = new DateTime();
 
             $this->emailQueueRepository->save($emailQueue);
@@ -88,7 +91,8 @@ class EmailService
     {
         VerifyEmailValidation::validation($request);
 
-        $verification = $this->emailRepository->findByToken($request->token);
+        $hashToken = hash('sha256', $request->token);
+        $verification = $this->emailRepository->findByToken($hashToken);
 
         if ($verification === null) {
             throw new ValidationException(null, 'Token is invalid.', 400);

@@ -30,7 +30,8 @@ class AuthMiddleware implements Middleware
             exit;
         }
         
-        $pat = $this->patRepository->findByToken($token);
+        $hashToken = hash('sha256', $token);
+        $pat = $this->patRepository->findByToken($hashToken);
         if ($pat === null) {
             ResponseHelper::error('Unauthorized.', ['token' => 'Token invalid.'], 401, 'Unauthorized');
             exit;

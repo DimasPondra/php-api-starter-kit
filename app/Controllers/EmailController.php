@@ -20,9 +20,10 @@ class EmailController
     public function sendVerification()
     {
         $token = AuthHelper::getToken();
+        $hashToken = hash('sha256', $token);
 
         try {
-            $response = $this->emailService->sendVerificationEmail($token);
+            $response = $this->emailService->sendVerificationEmail($hashToken);
 
             ResponseHelper::success($response['message'], $response['data']);
         } catch (ValidationException $ve) {

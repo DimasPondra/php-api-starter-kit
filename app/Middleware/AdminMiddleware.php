@@ -20,7 +20,8 @@ class AdminMiddleware implements Middleware
     {
         $token = AuthHelper::getToken();
 
-        $pat = $this->patRepository->findByToken($token);
+        $hashToken = hash('sha256', $token);
+        $pat = $this->patRepository->findByToken($hashToken);
         
         if (!in_array('admin', json_decode($pat->abilities))) {
             ResponseHelper::error("You don’t have access to this resource.", null, 403, 'Forbidden');

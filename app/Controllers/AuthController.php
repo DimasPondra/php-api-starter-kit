@@ -72,22 +72,24 @@ class AuthController
     public function profile()
     {
         $token = AuthHelper::getToken();
+        $hashToken = hash('sha256', $token);
 
         try {
-            $response = $this->userService->getUserFromToken($token);
+            $response = $this->userService->getUserFromToken($hashToken);
             
             ResponseHelper::success($response['message'], $response['data']);
         } catch (\Throwable $th) {
-            ResponseHelper::error('Something went wrong, Please try again.');
+            ResponseHelper::error('Something went wrong, Please try again.' . $th->getMessage());
         }
     }
 
     public function logout()
     {
         $token = AuthHelper::getToken();
+        $hashToken = hash('sha256', $token);
 
         try {
-            $response = $this->userService->deleteUserToken($token);
+            $response = $this->userService->deleteUserToken($hashToken);
             
             ResponseHelper::success($response['message'], $response['data']);
         } catch (\Throwable $th) {

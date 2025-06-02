@@ -89,6 +89,11 @@ class UserService
         $abilities[] = $role->slug;
         $abilitiesJson = json_encode($abilities);
 
+        do {
+            $token = Uuid::uuid4()->toString();
+            $hashToken = hash('sha256', $token);
+        } while ($this->patRepository->findByToken($hashToken));
+
         try {
             Database::beginTransaction();
 
@@ -100,7 +105,7 @@ class UserService
             $pat->id = Uuid::uuid4();
             $pat->user_id = $user->id;
             $pat->name = 'token-auth-php-api';
-            $pat->token = Uuid::uuid4();
+            $pat->token = $hashToken;
             $pat->abilities = $abilitiesJson;
             $pat->expiresAt = $dateTimeNow->modify('+1 day');
             $pat->createdAt = new DateTime();
@@ -115,7 +120,7 @@ class UserService
                 'data' => [
                     'user_id' => $user->id,
                     'name' => $user->name,
-                    'token' => $pat->token
+                    'token' => $token
                 ]
             ];
         } catch (\Throwable $th) {
