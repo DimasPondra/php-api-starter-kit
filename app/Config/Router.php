@@ -31,6 +31,21 @@ class Router
         $path = '/';
 
         if (isset($_SERVER['PATH_INFO'])) $path = $_SERVER['PATH_INFO'];
+
+        // If the request is for static file in public/uploads, let the web server handle it.
+        if (preg_match('#^/uploads/.+#', $path)) {
+            // Send a 404 if file doesn't exist (or return and let the server handle it).
+            $filePath = __DIR__ . '/../../public/uploads/' . $path;
+            if (file_exists($filePath)) {
+                // Let static files be served by the web serve.
+                return;
+            } else {
+                http_response_code(404);
+                echo "File not found.";
+                return;
+            }
+        }
+
         $method = $_SERVER['REQUEST_METHOD'];
 
         // CORS Handling
