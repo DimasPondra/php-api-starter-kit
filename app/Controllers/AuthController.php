@@ -4,6 +4,7 @@ namespace Pondra\PhpApiStarterKit\Controllers;
 
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
 use Pondra\PhpApiStarterKit\Helpers\AuthHelper;
+use Pondra\PhpApiStarterKit\Helpers\LoggerHelper;
 use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
 use Pondra\PhpApiStarterKit\Requests\LoginRequest;
 use Pondra\PhpApiStarterKit\Requests\RegisterRequest;
@@ -40,6 +41,10 @@ class AuthController
                 $ve->getStatusCode()
             );
         } catch (\Throwable $th) {
+            LoggerHelper::emergency('Failed to register new account.', [
+                'error' => $th->getMessage()
+            ]);
+
             ResponseHelper::error('Something went wrong, Please try again.');
         }
     }
@@ -65,6 +70,10 @@ class AuthController
                 $ve->getStatusCode()
             );
         } catch (\Throwable $th) {
+            LoggerHelper::emergency('Login failed.', [
+                'error' => $th->getMessage()
+            ]);
+
             ResponseHelper::error('Something went wrong, Please try again.');
         }
     }
@@ -79,6 +88,10 @@ class AuthController
             
             ResponseHelper::success($response['message'], $response['data']);
         } catch (\Throwable $th) {
+            LoggerHelper::emergency('Failed to get profile user.', [
+                'error' => $th->getMessage()
+            ]);
+
             ResponseHelper::error('Something went wrong, Please try again.' . $th->getMessage());
         }
     }
@@ -93,6 +106,10 @@ class AuthController
             
             ResponseHelper::success($response['message'], $response['data']);
         } catch (\Throwable $th) {
+            LoggerHelper::emergency('Failed to logout.', [
+                'error' => $th->getMessage()
+            ]);
+
             ResponseHelper::error('Something went wrong, Please try again.');
         }
     }

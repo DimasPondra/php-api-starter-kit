@@ -6,6 +6,7 @@ use DateTime;
 use Dotenv\Dotenv;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Helpers\FileHelper;
+use Pondra\PhpApiStarterKit\Helpers\LoggerHelper;
 use Pondra\PhpApiStarterKit\Models\File;
 use Pondra\PhpApiStarterKit\Repositories\FileRepository;
 use Pondra\PhpApiStarterKit\Requests\FileStoreRequest;
@@ -63,6 +64,12 @@ class FileService
             }
             
             Database::commitTransaction();
+
+            LoggerHelper::info('Upload files successfully', [
+                'action' => 'upload',
+                'model' => 'File',
+                'data' => $res
+            ]);
         } catch (\Throwable $th) {
             Database::rollbackTransaction();
 

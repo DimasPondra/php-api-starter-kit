@@ -4,6 +4,7 @@ namespace Pondra\PhpApiStarterKit\Controllers;
 
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
 use Pondra\PhpApiStarterKit\Helpers\AuthHelper;
+use Pondra\PhpApiStarterKit\Helpers\LoggerHelper;
 use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
 use Pondra\PhpApiStarterKit\Requests\VerifyEmailRequest;
 use Pondra\PhpApiStarterKit\Services\EmailService;
@@ -34,6 +35,10 @@ class EmailController
                 $ve->getStatusCode()
             );
         } catch (\Throwable $th) {
+            LoggerHelper::emergency('Failed to send email verification.', [
+                'error' => $th->getMessage()
+            ]);
+
             ResponseHelper::error('Something went wrong, Please try again.');
         }
     }
@@ -58,6 +63,10 @@ class EmailController
                 $ve->getStatusCode()
             );
         } catch (\Throwable $th) {
+            LoggerHelper::emergency('Failed to verify email.', [
+                'error' => $th->getMessage()
+            ]);
+
             ResponseHelper::error('Something went wrong, Please try again.');
         }
     }

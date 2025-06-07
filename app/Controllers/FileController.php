@@ -4,6 +4,7 @@ namespace Pondra\PhpApiStarterKit\Controllers;
 
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
 use Pondra\PhpApiStarterKit\Helpers\FileHelper;
+use Pondra\PhpApiStarterKit\Helpers\LoggerHelper;
 use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
 use Pondra\PhpApiStarterKit\Requests\FileStoreRequest;
 use Pondra\PhpApiStarterKit\Services\FileService;
@@ -37,6 +38,10 @@ class FileController
                 $ve->getStatusCode()
             );
         } catch (\Throwable $th) {
+            LoggerHelper::emergency('Failed to upload files.', [
+                'error' => $th->getMessage()
+            ]);
+
             ResponseHelper::error('Something went wrong, Please try again.');
         }
     }

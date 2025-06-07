@@ -6,6 +6,7 @@ use DateTime;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
 use Pondra\PhpApiStarterKit\Helpers\DateTimeHelper;
+use Pondra\PhpApiStarterKit\Helpers\LoggerHelper;
 use Pondra\PhpApiStarterKit\Models\EmailQueue;
 use Pondra\PhpApiStarterKit\Models\PasswordResetToken;
 use Pondra\PhpApiStarterKit\Repositories\EmailQueueRepository;
@@ -82,6 +83,18 @@ class PasswordService
 
             Database::commitTransaction();
 
+            LoggerHelper::info('Password reset token created successfully', [
+                'action' => 'forgot-password',
+                'model' => 'PasswordResetToken',
+                'data' => $prt
+            ]);
+
+            LoggerHelper::info('Email queue created successfully', [
+                'action' => 'forgot-password',
+                'model' => 'EmailQueue',
+                'data' => $emailQueue
+            ]);
+
             return [
                 'message' => 'Successfully send email reset password.',
                 'data' => null
@@ -122,6 +135,8 @@ class PasswordService
             $this->patRepository->deleteByUserId($user->id);
 
             Database::commitTransaction();
+
+            LoggerHelper::notice('Reset password successfully', []);
 
             return [
                 'message' => 'Successfully reset password.',

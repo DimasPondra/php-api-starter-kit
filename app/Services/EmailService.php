@@ -6,6 +6,7 @@ use DateTime;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
 use Pondra\PhpApiStarterKit\Helpers\DateTimeHelper;
+use Pondra\PhpApiStarterKit\Helpers\LoggerHelper;
 use Pondra\PhpApiStarterKit\Models\EmailQueue;
 use Pondra\PhpApiStarterKit\Models\Verification;
 use Pondra\PhpApiStarterKit\Repositories\EmailQueueRepository;
@@ -75,6 +76,18 @@ class EmailService
             $this->emailQueueRepository->save($emailQueue);
 
             Database::commitTransaction();
+
+            LoggerHelper::info('Verification created successfully', [
+                'action' => 'send-verification',
+                'model' => 'Verification',
+                'data' => $verification
+            ]);
+
+            LoggerHelper::info('Email queue created successfully', [
+                'action' => 'send-verification',
+                'model' => 'EmailQueue',
+                'data' => $emailQueue
+            ]);
             
             return [
                 'message' => 'Successfully send email verification.',
@@ -115,6 +128,8 @@ class EmailService
             $this->emailRepository->deleteByUserId($user->id);
 
             Database::commitTransaction();
+
+            LoggerHelper::notice('Verify email user successfully', []);
 
             return [
                 'message' => 'Successfully verify email.',

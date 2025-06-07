@@ -6,6 +6,7 @@ use DateTime;
 use Exception;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
+use Pondra\PhpApiStarterKit\Helpers\LoggerHelper;
 use Pondra\PhpApiStarterKit\Helpers\StringHelper;
 use Pondra\PhpApiStarterKit\Models\PersonalAccessToken;
 use Pondra\PhpApiStarterKit\Models\User;
@@ -40,6 +41,8 @@ class UserService
 
         $role = $this->roleRepository->findByName('Customer');
         if ($role === null) {
+            LoggerHelper::emergency('Role customer uncreated.', []);
+
             throw new Exception('Role customer uncreated.', 500);
         }
 
@@ -58,6 +61,16 @@ class UserService
             $this->userRepository->save($user);
 
             Database::commitTransaction();
+
+            LoggerHelper::info('Register successfully', [
+                'action' => 'register',
+                'model' => 'User',
+                'data' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email
+                ]
+            ]);
             
             return [
                 'message' => 'Register new account successfully.',
@@ -115,6 +128,8 @@ class UserService
 
             Database::commitTransaction();
 
+            LoggerHelper::notice('Login successfully', []);
+
             return [
                 'message' => 'Login successfully.',
                 'data' => [
@@ -156,6 +171,8 @@ class UserService
             $this->patRepository->deleteByUserId($pat->user_id);
             
             Database::commitTransaction();
+
+            LoggerHelper::notice('Logout successfully', []);
     
             return [
                 'message' => 'You have successfully logged out.',

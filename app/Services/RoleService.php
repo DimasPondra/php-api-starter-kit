@@ -5,6 +5,7 @@ namespace Pondra\PhpApiStarterKit\Services;
 use DateTime;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
+use Pondra\PhpApiStarterKit\Helpers\LoggerHelper;
 use Pondra\PhpApiStarterKit\Helpers\StringHelper;
 use Pondra\PhpApiStarterKit\Models\Role;
 use Pondra\PhpApiStarterKit\Repositories\RoleRepository;
@@ -76,6 +77,12 @@ class RoleService
 
             Database::commitTransaction();
 
+            LoggerHelper::info('Role created successfully', [
+                'action' => 'store',
+                'model' => 'Role',
+                'data' => $role
+            ]);
+
             return [
                 'message' => 'Role successfully created.',
                 'data' => [
@@ -111,6 +118,12 @@ class RoleService
             $this->roleRepository->update($role);
 
             Database::commitTransaction();
+
+            LoggerHelper::info('Role updated successfully', [
+                'action' => 'update',
+                'model' => 'Role',
+                'data' => $role
+            ]);
 
             return [
                 'message' => 'Role successfully updated.',
@@ -149,6 +162,12 @@ class RoleService
             $this->roleRepository->deleteById($id);
 
             Database::commitTransaction();
+
+            LoggerHelper::info('Role deleted successfully', [
+                'action' => 'delete',
+                'model' => 'Role',
+                'deleted_id' => $id
+            ]);
 
             return [
                 'message' => 'Role successfully deleted.',

@@ -3,6 +3,7 @@
 namespace Pondra\PhpApiStarterKit\Controllers;
 
 use Pondra\PhpApiStarterKit\Exceptions\ValidationException;
+use Pondra\PhpApiStarterKit\Helpers\LoggerHelper;
 use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
 use Pondra\PhpApiStarterKit\Requests\RoleStoreRequest;
 use Pondra\PhpApiStarterKit\Requests\RoleUpdateRequest;
@@ -48,6 +49,10 @@ class RoleController
                 $ve->getStatusCode()
             );
         } catch (\Throwable $th) {
+            LoggerHelper::emergency('Failed to create new role.', [
+                'error' => $th->getMessage()
+            ]);
+
             ResponseHelper::error('Something went wrong, Please try again.');
         }
     }
@@ -66,6 +71,10 @@ class RoleController
                 $ve->getStatusCode()
             );
         } catch (\Throwable $th) {
+            LoggerHelper::emergency('Failed to get a role.', [
+                'error' => $th->getMessage()
+            ]);
+
             ResponseHelper::error('Something went wrong, Please try again.');
         }
     }
@@ -90,6 +99,10 @@ class RoleController
                 $ve->getStatusCode()
             );
         } catch (\Throwable $th) {
+            LoggerHelper::emergency('Failed to update a role.', [
+                'error' => $th->getMessage()
+            ]);
+
             ResponseHelper::error('Something went wrong, Please try again.');
         }
     }
@@ -108,6 +121,10 @@ class RoleController
                 $ve->getStatusCode()
             );
         } catch (\Throwable $th) {
+            LoggerHelper::emergency('Failed to delete a role.', [
+                'error' => $th->getMessage()
+            ]);
+
             ResponseHelper::error('Something went wrong, Please try again.');
         }
     }

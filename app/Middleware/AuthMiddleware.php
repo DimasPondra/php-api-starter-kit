@@ -6,6 +6,7 @@ use DateTime;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Helpers\AuthHelper;
 use Pondra\PhpApiStarterKit\Helpers\DateTimeHelper;
+use Pondra\PhpApiStarterKit\Helpers\LoggerHelper;
 use Pondra\PhpApiStarterKit\Helpers\ResponseHelper;
 use Pondra\PhpApiStarterKit\Repositories\PersonalAccessTokenRepository;
 use Pondra\PhpApiStarterKit\Repositories\UserRepository;
@@ -33,12 +34,24 @@ class AuthMiddleware implements Middleware
         $hashToken = hash('sha256', $token);
         $pat = $this->patRepository->findByToken($hashToken);
         if ($pat === null) {
+            
+            LoggerHelper::error('Token verification failed.', [
+                'action' => 'auth-middleware',
+                'error' => 'from token, data personal access token is not found.'
+            ]);
+
             ResponseHelper::error('Unauthorized.', ['token' => 'Token invalid.'], 401, 'Unauthorized');
             exit;
         }
 
         $user = $this->userRepository->findById($pat->user_id);
         if ($user === null) {
+
+            LoggerHelper::error('Token verification failed.', [
+                'action' => 'auth-middleware',
+                'error' => 'from token, data user is not found.'
+            ]);
+
             ResponseHelper::error('Unauthorized.', ['token' => 'User not found.'], 401, 'Unauthorized');
             exit;
         }
@@ -53,6 +66,11 @@ class AuthMiddleware implements Middleware
                 Database::commitTransaction();
             } catch (\Throwable $th) {
                 Database::rollbackTransaction();
+
+                LoggerHelper::emergency('Failed to delete personal access token.', [
+                    'action' => 'auth-middleware',
+                    'error' => $th->getMessage()
+                ]);
 
                 ResponseHelper::error('Something went wrong, Please try again.');
                 exit;
@@ -72,6 +90,11 @@ class AuthMiddleware implements Middleware
             Database::commitTransaction();
         } catch (\Throwable $th) {
             Database::rollbackTransaction();
+
+            LoggerHelper::emergency('Failed to update personal access token.', [
+                'action' => 'auth-middleware',
+                'error' => $th->getMessage()
+            ]);
 
             ResponseHelper::error('Something went wrong, Please try again.');
             exit;
