@@ -50,4 +50,9 @@ class FileRepository
         $statement = $this->connection->prepare('DELETE FROM files WHERE id = ?');
         $statement->execute([$id]);
     }
+
+    public function deleteAll()
+    {
+        $this->connection->exec('DELETE FROM files');
+    }
 }

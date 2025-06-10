@@ -109,4 +109,9 @@ class RoleRepository
         $statement = $this->connection->prepare('DELETE FROM roles WHERE id = ?');
         $statement->execute([$id]);
     }
+
+    public function deleteAll()
+    {
+        $this->connection->exec('DELETE FROM roles');
+    }
 }

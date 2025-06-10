@@ -64,4 +64,9 @@ class PersonalAccessTokenRepository
         $statement = $this->connection->prepare('DELETE FROM personal_access_tokens WHERE user_id = ?');
         $statement->execute([$userId]);
     }
+
+    public function deleteAll()
+    {
+        $this->connection->exec('DELETE FROM personal_access_tokens');
+    }
 }

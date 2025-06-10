@@ -80,7 +80,7 @@ class UserRepository
 
     public function findByEmail(string $email): ?User
     {
-        $statement = $this->connection->prepare('SELECT id, name, email, password, role_id FROM users WHERE email = ?');
+        $statement = $this->connection->prepare('SELECT id, name, email, email_verified_at, password, role_id FROM users WHERE email = ?');
         $statement->execute([$email]);
 
         try {
@@ -135,5 +135,10 @@ class UserRepository
         ]);
 
         return $user;
+    }
+
+    public function deleteAll()
+    {
+        $this->connection->exec('DELETE FROM users');
     }
 }

@@ -54,4 +54,9 @@ class PasswordRepository
         $statement = $this->connection->prepare('DELETE FROM password_reset_tokens WHERE email = ?');
         $statement->execute([$email]);
     }
+
+    public function deleteAll()
+    {
+        $this->connection->exec('DELETE FROM password_reset_tokens');
+    }
 }

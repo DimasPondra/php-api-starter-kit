@@ -116,4 +116,9 @@ class EmailQueueRepository
 
         return $emailQueue;
     }
+
+    public function deleteAll()
+    {
+        $this->connection->exec('DELETE FROM email_queue');
+    }
 }
