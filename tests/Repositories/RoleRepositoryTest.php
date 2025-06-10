@@ -16,7 +16,9 @@ class RoleRepositoryTest extends TestCase
     protected function setUp(): void
     {
         $this->roleRepository = new RoleRepository(Database::getConnection());
+        $userRepository = new UserRepository(Database::getConnection());
 
+        $userRepository->deleteAll();
         $this->roleRepository->deleteAll();
     }
 
