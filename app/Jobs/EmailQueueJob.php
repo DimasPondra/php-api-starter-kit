@@ -6,6 +6,7 @@ use DateTime;
 use Dotenv\Dotenv;
 use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Helpers\EmailHelper;
+use Pondra\PhpApiStarterKit\Helpers\LoggerHelper;
 use Pondra\PhpApiStarterKit\Repositories\EmailQueueRepository;
 
 class EmailQueueJob
@@ -68,8 +69,10 @@ class EmailQueueJob
         } catch (\Throwable $th) {
             Database::rollbackTransaction();
 
-            var_dump($th->getMessage());
-            die();
+            LoggerHelper::emergency('Failed to send email using email queue job.', [
+                'action' => 'email-queue-job',
+                'error' => $th->getMessage()
+            ]);
         }
     }
 

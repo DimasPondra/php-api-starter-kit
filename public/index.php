@@ -4,6 +4,7 @@ use Pondra\PhpApiStarterKit\Config\Database;
 use Pondra\PhpApiStarterKit\Config\Router;
 use Pondra\PhpApiStarterKit\Controllers\FileController;
 use Pondra\PhpApiStarterKit\Controllers\HomeController;
+use Pondra\PhpApiStarterKit\Middleware\RateLimitingMiddleware;
 use Pondra\PhpApiStarterKit\Repositories\FileRepository;
 use Pondra\PhpApiStarterKit\Services\FileService;
 
@@ -21,6 +22,8 @@ $fileController = new FileController($fileService);
 
 Router::add('GET', '/', HomeController::class, 'index');
 
-Router::add('POST', '/api/files/upload', $fileController, 'upload');
+Router::add('POST', '/api/files/upload', $fileController, 'upload', [
+    new RateLimitingMiddleware('POST', 'api_files_upload')
+]);
 
 Router::run();

@@ -80,7 +80,12 @@ class Router
                 
                 // call middlewares
                 foreach ($route['middleware'] as $middleware) {
-                    $instance = new $middleware;
+                    if (is_object($middleware)) {
+                        $instance = $middleware;
+                    } else {
+                        $instance = new $middleware;
+                    }
+
                     $instance->before();
                 }
 

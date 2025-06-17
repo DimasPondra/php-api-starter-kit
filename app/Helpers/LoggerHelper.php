@@ -69,32 +69,11 @@ class LoggerHelper
     {
         // $context['user_id'] = 'user_id';
         
-        $context['ip_address'] = self::getClientIp();
+        $context['ip_address'] = AuthHelper::getClientIp();
         $context['user_agent'] = self::getUserAgent();
         $context['datetime'] = DateTimeHelper::nowLocal();
 
         return $context;
-    }
-
-    private static function getClientIp()
-    {
-        $ipAddress = '';
-        if (isset($_SERVER['HTTP_CLIENT_IP']))
-            $ipAddress = $_SERVER['HTTP_CLIENT_IP'];
-        else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-            $ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        else if(isset($_SERVER['HTTP_X_FORWARDED']))
-            $ipAddress = $_SERVER['HTTP_X_FORWARDED'];
-        else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
-            $ipAddress = $_SERVER['HTTP_FORWARDED_FOR'];
-        else if(isset($_SERVER['HTTP_FORWARDED']))
-            $ipAddress = $_SERVER['HTTP_FORWARDED'];
-        else if(isset($_SERVER['REMOTE_ADDR']))
-            $ipAddress = $_SERVER['REMOTE_ADDR'];
-        else
-            $ipAddress = 'UNKNOWN';
-
-        return $ipAddress;
     }
 
     private static function getUserAgent()
